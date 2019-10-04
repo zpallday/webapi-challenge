@@ -14,7 +14,7 @@ router.get('/:id', validateProjectID, (req,res) => {
     })
 })
 
-router.put('/:id', validateProjectID, ValiditeProject, (req,res) => {
+router.put('/:id', validateProjectID, validateProject, (req,res) => {
     const id = req.params.id
     const project = req.body;
     projectDatebase.update(id, project)
