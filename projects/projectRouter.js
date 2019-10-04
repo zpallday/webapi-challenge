@@ -10,7 +10,7 @@ router.get('/:id', validateProjectID, (req,res) => {
         res.status(200).json(results)
     })
     .catch(err => {
-        res.status(500).json({error: "error"})
+        res.status(500).json({error: err})
     })
 })
 
@@ -22,7 +22,7 @@ router.put('/:id', validateProjectID, validateProject, (req,res) => {
         res.status(200).json(results)
     })
     .catch(err => {
-        res.status(500).json({error: 'errors'})
+        res.status(500).json({error: err})
     })
 })
 
@@ -33,7 +33,7 @@ router.post('/', validateProject, (req,res) => {
         res.status(200).json(results)
     })
     .catch(error => {
-        res.status(500).json({error: "error"})
+        res.status(500).json({err: error})
     })
 })
 
