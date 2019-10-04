@@ -1,97 +1,84 @@
-const express = require('express');
-const actionDatebase = require('../data/helpers/actionModel');
+const express = require("express");
+
+const ActionDataBase = require("../data/helpers/actionModel");
 const router = express.Router();
 router.use(express.json());
 
-router.get('/:actionid', validateActionID, (req, res) => {
-    const actionId = req.params.actionId;
-    actionDatebase.get(actionId)
-    .then(result => {
-        res.status(200).json(result)
-    })
-    .catch(error => {
-        res.status(500).json({err: error})
-    })
-})
-
-router.post('/', validateActionProjectID, validateAction, (req, res) => {
-    const action = req.body;
-    actionDatebase.insert(action)
-    .then(result => {
-        res.status(200).json(result)
-    })
-    .catch(error => {
-        res.status(500).json({err: error})
-    })
-})
-
-router.put('/:action', validateActionID, validateAction, validateActionProjectID, ( req,res) => {
-    const actionId = req.params.actionid;
-    const action = req.body;
-    actionDatebase.update(actionId, action)
-    .then(result => {
-        res.status(200).json(result)
-    })
-    .catch(error => {
-        res.status(500).json({err: error})
-    })
-})
-
-router.delete('/actionid', validateActionID, (req,res) => {
-    const actionId = req.params.actionid;
-    actionDatebase.remove(actionId)
-    .then(result => {
-        res.status(200).json(result)
+router.get("/", (req, res) => {
+  ActionDataDase.get()
+    .then(actions => {
+      res.status(200).json(actions);
     })
     .catch(err => {
-        res.status(500).json({ error: err})
-    })
-})
+      console.log(err);
+      res .status(500).json({ error: "There was an error fetching these actions." });
+    });
+});
 
-function validateActionID (req, res, next) {
-    const actionId = req.params.actionid
-    actionDatebase.get(actionId)
-    .then(result => {
-        if(result) {
-            next();
-        } else {
-            res.status(404).json({ message: " The specifed action doesn't exist"})
-        }
-    })
-    .catch(error => {
-        res.status(500).json({err: error})
-    })
-}
-
-function validateAction(req, res, next) {
-    const action = req.body;
-    console.log(action)
-    if(!action.project_id) {
-        res.status(400).json({message: " Project_Id requirded"})
-    } else if(!action.notes) {
-        res.status(400).json({message: " Notes required, add them"})
-    } else if(!action.description) {
-        res.status(400).json({message: "Description required"})
-
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  ActionDataDase.get(id)
+  .then(action => {
+    if (action) {
+      res.status(200).json(action);
     } else {
-        next()
+      res.status(404).json({ error: "No action with this ID exists." });
     }
-}
+  });
+});
 
-function validateActionProjectID (req, res, next) {
-    const projectId = req.params.project_id
-    projectsDatebase.get(projectId)
-    .then(result => {
-        if(result) {
-            next();
-        } else {
-            res.status(404).json({ message: " The specifed actionPro doesn't exist"})
-        }
+router.post("/", (req, res) => {
+  const action = req.body;
+  ActionDataBase.insert(action)
+    .then(action => {
+      res.status(201).json(action);
     })
-    .catch(error => {
-        res.status(500).json({err: error})
-    })
-}
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "There was a problem posting this action." });
+    });
+});
 
-module.exports = router
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { project_id, description, notes } = req.body;
+  ActionData.get(id)
+  .then(action => {
+    if (action) {
+      ActionData.update(id, { project_id, description, notes })
+        .then(updated => {
+          res.status(200).json(updated);
+        })
+        .catch(err => {
+          console.log(err);
+          res
+            .status(500)
+            .json({ error: "There was an error editing this action." });
+        });
+    } else {
+      res.status(404).json({ error: "No action with this ID exists." });
+    }
+  });
+});
 
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+  ActionData.get(id)
+  .then(action => {
+    if (action) {
+      ActionData.remove(id)
+        .then(removed => {
+          res.status(200).json(removed);
+        })
+        .catch(err => {
+          res
+            .status(500)
+            .json({ error: "There was an error deleting this action." });
+        });
+    } else {
+      res.status(404).json({ error: "No action with this ID exists." });
+    }
+  });
+});
+
+module.exports = router;
